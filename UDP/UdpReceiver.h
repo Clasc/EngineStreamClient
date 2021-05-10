@@ -17,11 +17,16 @@ extern "C"
 
 class UdpReceiver
 {
-    public:
-    UdpReceiver();
-	void init( int port );
-	int receive( char *buffer, int len, double *ptime  );
-	int receive( char *buffer, int len, char *tag, double *ptime  );
+public:
+	int sock;
+	struct sockaddr_in addr;
+	char *recbuffer;
+	bool leftover;
+
+	UdpReceiver();
+	~UdpReceiver() { delete recbuffer; };
+	void init(int port);
+	int receive(char *buffer, int len, char *tag, double *ptime);
 	void closeSock();
 };
 #endif
