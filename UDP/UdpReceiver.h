@@ -26,6 +26,7 @@ public:
 	UdpReceiver();
 	~UdpReceiver() { delete recbuffer; };
 	void init(int port);
+	int receive(char *buffer, int len, double *ptime);
 	int receive(char *buffer, int len, char *tag, double *ptime);
 	void closeSock();
 };

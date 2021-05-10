@@ -19,7 +19,7 @@ StreamerClient::StreamerClient()
 {
     m_receiver = UdpReceiver();
     m_encoder = Encoder();
-    m_receiver.init(8080);
+    m_receiver.init(8889);
 }
 
 StreamerClient::~StreamerClient()
@@ -30,10 +30,10 @@ StreamerClient::~StreamerClient()
 void *StreamerClient::receiveAndEncode()
 {
     uint8_t *data;
-    char *tag;
+
     double *ptime;
 
-    m_receiver.receive((char *)data, WIDTH * HEIGHT, tag, ptime);
+    m_receiver.receive((char *)data, WIDTH * HEIGHT, ptime);
     m_encoder.setupContexts(WIDTH, HEIGHT);
 
     auto filename = "out/media/stream.mpeg";

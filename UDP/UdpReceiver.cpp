@@ -34,6 +34,11 @@ void UdpReceiver::init(int port)
     leftover = false;
 }
 
+int UdpReceiver::receive(char *buffer, int len, double *ptime)
+{
+    receive(buffer, len, "", ptime);
+}
+
 int UdpReceiver::receive(char *buffer, int len, char *tag, double *ptime)
 {
     struct sockaddr_in si_other;
