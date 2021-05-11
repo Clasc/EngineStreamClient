@@ -34,12 +34,12 @@ void UdpReceiver::init(int port)
     leftover = false;
 }
 
-int UdpReceiver::receive(char *buffer, int len, double *ptime)
+int UdpReceiver::receive(char *buffer, double *ptime)
 {
-    receive(buffer, len, "", ptime);
+    receive(buffer, "", ptime);
 }
 
-int UdpReceiver::receive(char *buffer, int len, char *tag, double *ptime)
+int UdpReceiver::receive(char *buffer, char *tag, double *ptime)
 {
     struct sockaddr_in si_other;
     socklen_t slen = sizeof(si_other);
@@ -64,7 +64,7 @@ int UdpReceiver::receive(char *buffer, int len, char *tag, double *ptime)
         }
         leftover = false;
 
-        //printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag );
+        //printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag);
 
         if (ret > sizeof(RTHeader_t))
         {
@@ -80,14 +80,17 @@ int UdpReceiver::receive(char *buffer, int len, char *tag, double *ptime)
                 return -1;
             }
 
-            //printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag );
-
             if (nextfrag != pheader->fragnum)
             { //a fragment is missing
                 printf("Fragment %d lost\n", nextfrag);
                 return -1;
             }
             nextfrag++;
+            // printf("buffer %p\n", buffer);
+            // printf("bytes %d\n", bytes);
+            // printf("recbuffer %p\n", recbuffer);
+            // printf("ret %d\n", ret);
+            // printf("rt header size %d\n\n", sizeof(RTHeader_t));
 
             memcpy(buffer + bytes, recbuffer + sizeof(RTHeader_t), ret - sizeof(RTHeader_t));
             bytes += ret - sizeof(RTHeader_t);
