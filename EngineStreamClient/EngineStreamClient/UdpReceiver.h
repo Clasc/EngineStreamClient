@@ -1,9 +1,15 @@
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
+
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 #pragma comment (lib, "Ws2_32.lib")
@@ -24,6 +30,7 @@
 #define ISVALIDSOCKET(s) ((s) >= 0)
 #endif
 
+
 #ifndef UDP_RECEIVER_H
 #define UDP_RECEIVER_H
 
@@ -37,7 +44,7 @@ public:
 
 	UdpReceiver();
 	~UdpReceiver() { delete recbuffer; WSACleanup();};
-	void init(int port);
+	void init(int port,const char* address);
 	int receive(char *buffer, double *ptime);
 	int receive(char *buffer, const char *tag, double *ptime);
 	void closeSock();

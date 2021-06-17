@@ -29,12 +29,12 @@ UdpReceiver::UdpReceiver()
 	}
 }
 
-void UdpReceiver::init(int port)
+void UdpReceiver::init(int port, const char* address)
 {
     sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_addr.s_addr = inet_addr(address);
     addr.sin_port = htons(port);
     int ret = bind(sock, (const sockaddr *)&addr, sizeof(addr));
 
@@ -69,7 +69,7 @@ int UdpReceiver::receive(char *buffer, const char *tag, double *ptime)
 
         if (!leftover)
         {
-            ret = recvfrom(sock, recbuffer, 65000, 0, (sockaddr *)&si_other, &slen);
+            ret = recvfrom(sock, recbuffer, sizeof(recbuffer) , 0, (sockaddr *)&si_other, &slen);
         }
         leftover = false;
 
@@ -126,5 +126,9 @@ int UdpReceiver::receive(char *buffer, const char *tag, double *ptime)
 
 void UdpReceiver::closeSock()
 {
-    closesocket(sock);
+	if (sock)
+	{
+		closesocket(sock);
+	}
+	WSACleanup();
 }

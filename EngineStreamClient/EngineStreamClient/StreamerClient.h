@@ -2,6 +2,8 @@
 #include <iostream>
 
 #define PORT 5000
+#define ADDRESS "127.0.0.1"
+
 class StreamerClient
 {
 private:
@@ -26,12 +28,17 @@ StreamerClient::~StreamerClient()
 
 void StreamerClient::receiveAndEncode()
 {
-	char message[6500];
+	char message[1000];
     double ptime;
 
-    m_receiver.init(PORT);
-    m_receiver.receive(message, &ptime);
-    printf("received a message! ptime: %d", ptime);
+	m_receiver.init(PORT, ADDRESS);
+
+	while (true) {
+		m_receiver.receive(message, &ptime);
+		printf("received a message! \n");
+		printf(message);
+	}
+
     m_receiver.closeSock();
     return;
     // m_encoder.setupContexts(WIDTH, HEIGHT);
