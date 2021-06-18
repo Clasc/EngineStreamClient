@@ -1,6 +1,6 @@
 #include "UdpReceiver.h"
-#include <iostream>
 #include "Decoder.h"
+#include <iostream>
 
 #define PORT 5000
 #define ADDRESS "127.0.0.1"

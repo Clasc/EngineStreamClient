@@ -23,5 +23,6 @@ public:
     ~Decoder();
 	void setupContexts(int width, int height);
 	void decode(char* buffer);
+	int decode_packet(AVPacket* pPacket, AVFrame* pFrame);
 };
 
