@@ -3,7 +3,6 @@
 #include <iostream>
 
 #define PORT 5000
-#define ADDRESS "127.0.0.1"
 
 class StreamerClient
 {
@@ -34,7 +33,7 @@ void StreamerClient::receiveAndEncode()
 	char message[1000];
     double ptime;
 
-	m_receiver.init(PORT, ADDRESS);
+	m_receiver.init(PORT);
 	m_decoder.setupContexts(WIDTH, HEIGHT);
 	printf("ffmpeg is set up \n");
 	

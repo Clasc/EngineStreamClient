@@ -44,7 +44,7 @@ public:
 
 	UdpReceiver();
 	~UdpReceiver() { delete recbuffer; WSACleanup();};
-	void init(int port,const char* address);
+	void init(int port);
 	int receive(char *buffer, double *ptime);
 	int receive(char *buffer, const char *tag, double *ptime);
 	void closeSock();

@@ -29,12 +29,12 @@ UdpReceiver::UdpReceiver()
 	}
 }
 
-void UdpReceiver::init(int port, const char* address)
+void UdpReceiver::init(int port)
 {
     sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr(address);
+    addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(port);
     int ret = bind(sock, (const sockaddr *)&addr, sizeof(addr));
 
