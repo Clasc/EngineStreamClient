@@ -24,7 +24,7 @@ int main(int argc, char const *argv[])
 	bool running = true;
 
 	auto renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
-	auto streamTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UYVY, SDL_TEXTUREACCESS_STREAMING, width, height);
+	auto streamTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING, width, height);
 	char buffer[65535];
 
 
