@@ -27,21 +27,35 @@ int main(int argc, char const *argv[])
 
 	renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	auto streamTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_UYVY, SDL_TEXTUREACCESS_STREAMING, width, height);
-	char buffer[100000];
+	char buffer[65535];
 
 
 	while (running) {
-		client.receiveAndEncode(buffer);
-		int pitch;
-		auto success = SDL_LockTexture(streamTexture, NULL, (void**) buffer, &pitch);
-		
-		if (success == -1) {
-			printf("error filling streamtexture");
-			SDL_UnlockTexture(streamTexture);
+		AVFrame* frame = NULL;
+		client.receiveAndEncode(buffer, frame);
+		if (frame == NULL) 
+		{
 			continue;
 		}
 
-		SDL_UnlockTexture(streamTexture);
+		int pitch;
+
+		auto success = SDL_UpdateYUVTexture(
+			streamTexture,
+			NULL, 
+			frame->data[0],
+			frame->linesize[0], 
+			frame->data[1], 
+			frame->linesize[1], 
+			frame->data[2], 
+			frame->linesize[2]
+		);
+
+		if (success == -1) {
+			printf("error filling streamtexture");
+			continue;
+		}
+
 		SDL_Event e;
 		if (SDL_PollEvent(&e)) {
 			if (e.type == SDL_QUIT) {

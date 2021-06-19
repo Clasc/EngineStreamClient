@@ -30,23 +30,25 @@
 #define ISVALIDSOCKET(s) ((s) >= 0)
 #endif
 
+#define BUFF_SIZE 65000
 
 #ifndef UDP_RECEIVER_H
 #define UDP_RECEIVER_H
 
 class UdpReceiver
 {
+
 public:
-	SOCKET sock;
+	int sock;
 	struct sockaddr_in addr;
-	char *recbuffer;
+	char* recbuffer;
 	bool leftover;
 
 	UdpReceiver();
-	~UdpReceiver() { delete recbuffer; WSACleanup();};
+	~UdpReceiver() { delete recbuffer; };
 	void init(int port);
-	int receive(char *buffer, double *ptime);
-	int receive(char *buffer, const char *tag, double *ptime);
+	int receive(char* buffer, double* ptime);
+	int receive(char* buffer, const char* tag, double* ptime);
 	void closeSock();
 };
 #endif

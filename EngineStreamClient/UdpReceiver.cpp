@@ -17,7 +17,8 @@ typedef struct RTHeader
 
 UdpReceiver::UdpReceiver()
 {
-    recbuffer = new char[65000];
+    recbuffer = new char[BUFF_SIZE];
+	leftover = false;
 	WSADATA wsaData;
 	auto wVersionRequested = MAKEWORD(2, 2);
 	auto err = WSAStartup(wVersionRequested, &wsaData);
@@ -27,101 +28,92 @@ UdpReceiver::UdpReceiver()
 		printf("WSAStartup failed with error: %d\n", err);
 		return;
 	}
+
+    sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
 }
 
 void UdpReceiver::init(int port)
 {
-    sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-
     addr.sin_family = AF_INET;
     addr.sin_addr.s_addr = htonl(INADDR_ANY);
     addr.sin_port = htons(port);
-    int ret = bind(sock, (const sockaddr *)&addr, sizeof(addr));
+    
+	int ret = bind(sock, (const sockaddr *)&addr, sizeof(addr));
+	if (ret < 0) {
+		throw std::system_error(WSAGetLastError(), std::system_category(), "Bind failed");
+	}
 
     printf("Binding port %d return %d\n", port, ret);
-
-    leftover = false;
 }
 
-int UdpReceiver::receive(char *buffer, double *ptime)
-{
-    return receive(buffer, "", ptime);
+int UdpReceiver::receive(char* buffer, double* ptime) {
+	return receive(buffer, "", ptime);
 }
 
-int UdpReceiver::receive(char *buffer, const char *tag, double *ptime)
-{
-    struct sockaddr_in si_other;
-    socklen_t slen = sizeof(si_other);
+int UdpReceiver::receive(char* buffer,const char* tag, double* ptime) {
+	struct sockaddr_in si_other;
+	socklen_t slen = sizeof(si_other);
 
-    RTHeader_t *pheader = (RTHeader_t *)recbuffer;
+	RTHeader_t* pheader = (RTHeader_t*)recbuffer;
 
-    bool goon = true;
-    int bytes = 0;
-    int packetnum = -1;
-    int fragments = -1;
-    int fragnum = -1;
-    int nextfrag = 1;
+	bool goon = true;
+	int bytes = 0;
+	int packetnum = -1;
+	int fragments = -1;
+	int fragnum = -1;
+	int nextfrag = 1;
 
-    while (goon)
-    {
+	while (goon) {
 
-        int ret = 0;
+		int ret = 0;
 
-        if (!leftover)
-        {
-            ret = recvfrom(sock, recbuffer, sizeof(recbuffer) , 0, (sockaddr *)&si_other, &slen);
-        }
-        leftover = false;
+		if (!leftover) {
+			ret = recvfrom(sock, recbuffer, 65000, 0, (sockaddr*)& si_other, &slen);
+		}
 
-        //printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag);
+		leftover = false;
 
-        if (ret > sizeof(RTHeader_t))
-        {
-            if (packetnum == -1)
-            { //first fragment of the new packet
-                packetnum = pheader->packetnum;
-            }
+		//printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag );
 
-            if (packetnum != pheader->packetnum)
-            { //last fragments lost
-                printf("Last Frag %d lost", nextfrag);
-                leftover = true;
-                return -1;
-            }
+		if (ret <= sizeof(RTHeader_t)) {
+			printf("Fragment %d not larger than %d", pheader->fragnum, sizeof(RTHeader_t));
+			throw std::system_error(WSAGetLastError(), std::system_category(), "receive failed");
+		}
 
-            if (nextfrag != pheader->fragnum)
-            { //a fragment is missing
-                printf("Fragment %d lost\n", nextfrag);
-                return -1;
-            }
-            nextfrag++;
-           /* printf("buffer %p\n", buffer);
-            printf("bytes %d\n", bytes);
-            printf("recbuffer %p\n", recbuffer);
-            printf("ret %d\n", ret);
-            printf("rt header size %d\n\n", sizeof(RTHeader_t));*/
+		if (packetnum == -1) {						//first fragment of the new packet
+			packetnum = pheader->packetnum;
+		}
 
-            memcpy(buffer + bytes, recbuffer + sizeof(RTHeader_t), ret - sizeof(RTHeader_t));
-            bytes += ret - sizeof(RTHeader_t);
+		if (packetnum != pheader->packetnum) {		//last fragments lost
+			printf("Last Frag %d lost", nextfrag);
+			leftover = true;
+			throw std::runtime_error("Last Frag lost");
+		}
 
-            if (pheader->fragments == pheader->fragnum)
-                goon = false; //last fragment
+		//printf("%s UDP Packet %ld Size %d Fragment %d of %d Nextfrag %d\n", tag, pheader->packetnum, ret, pheader->fragnum, pheader->fragments, nextfrag );
 
-            packetnum = pheader->packetnum;
-            fragments = pheader->fragments;
-            fragnum = pheader->fragnum;
+		if (nextfrag != pheader->fragnum) {			//a fragment is missing
+			printf("Fragment %d lost\n", nextfrag);
+			throw std::runtime_error("A Fragment was lost");
+		}
 
-            *ptime = pheader->time;
-        }
-        else
-        {
-            printf("Fragment %d not larger than %d", pheader->fragnum, sizeof(RTHeader_t));
-            return -1;
-        }
-    }
+		nextfrag++;
 
-    leftover = false;
-    return bytes;
+		memcpy(buffer + bytes, recbuffer + sizeof(RTHeader_t), ret - sizeof(RTHeader_t));
+		bytes += ret - sizeof(RTHeader_t);
+
+		if (pheader->fragments == pheader->fragnum) goon = false;		//last fragment
+
+		packetnum = pheader->packetnum;
+		fragments = pheader->fragments;
+		fragnum = pheader->fragnum;
+
+		*ptime = pheader->time;
+
+	}
+
+	leftover = false;
+	return bytes;
 }
 
 void UdpReceiver::closeSock()

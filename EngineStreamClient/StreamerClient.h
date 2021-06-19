@@ -1,5 +1,6 @@
 #include "UdpReceiver.h"
 #include "Decoder.h"
+#include <time.h>
 #include <iostream>
 
 #define PORT 5000
@@ -16,7 +17,7 @@ public:
     StreamerClient();
     ~StreamerClient();
 	void init();
-	void receiveAndEncode(char* buffer);
+	void receiveAndEncode(char* buffer, AVFrame* frame);
 };
 
 StreamerClient::StreamerClient()
@@ -31,16 +32,44 @@ StreamerClient::~StreamerClient()
 }
 
 void StreamerClient::init() {
-	m_receiver.init(PORT);
+	try {
+		m_receiver.init(PORT);
+	}
+	catch (std::system_error err) {
+		printf(err.what());
+	}
+
 	m_decoder.setupContexts(WIDTH, HEIGHT);
 	printf("ffmpeg is set up \n");
 };
 
-void StreamerClient::receiveAndEncode(char* buffer)
+void StreamerClient::receiveAndEncode(char* buffer, AVFrame* frame)
 {
-    double ptime;
-	m_receiver.receive(buffer, &ptime);
-	printf("received a message! \n");
-	m_decoder.decode(buffer);   
-    return;
+	double ptime = clock() / (double)CLOCKS_PER_SEC;
+	try {
+		auto ret = m_receiver.receive(buffer,&ptime);
+		printf("received a message! \n");
+		if (ret < 0) 
+		{
+			return;
+		}
+
+		auto frame = av_frame_alloc();
+		if (!frame)
+		{
+			fprintf(stderr, "Cannot alloc frame\n");
+			exit(1);
+		}
+
+		m_decoder.decode(buffer, frame);
+	}
+
+	catch (std::system_error err) {
+		printf(err.what());
+		return;
+	}
+	catch (std::runtime_error err) {
+		printf(err.what());
+		return;
+	}
 }
