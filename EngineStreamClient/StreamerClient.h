@@ -20,7 +20,6 @@ private:
 public:
     StreamerClient();
     ~StreamerClient();
-	void init();
 	void start();
 	void receiveDecode(char* buffer, std::function<void(AVFrame* frame)> callback);
 };
@@ -29,14 +28,7 @@ StreamerClient::StreamerClient()
 {
     m_receiver = UdpReceiver();
 	m_decoder = Decoder();
-}
 
-StreamerClient::~StreamerClient()
-{
-	m_receiver.closeSock();
-}
-
-void StreamerClient::init() {
 	try {
 		m_receiver.init(PORT);
 	}
@@ -46,7 +38,12 @@ void StreamerClient::init() {
 
 	m_decoder.setupContexts(WIDTH, HEIGHT);
 	printf("ffmpeg is set up \n");
-};
+}
+
+StreamerClient::~StreamerClient()
+{
+	m_receiver.closeSock();
+}
 
 void StreamerClient::receiveDecode(char* buffer, std::function<void(AVFrame* frame)> callback)
 {
