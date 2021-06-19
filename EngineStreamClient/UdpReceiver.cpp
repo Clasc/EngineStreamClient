@@ -1,11 +1,4 @@
 #include "UdpReceiver.h"
-#include <iostream>
-
-extern "C"
-{
-#include <stdio.h>
-#include <string.h>
-}
 
 typedef struct RTHeader
 {

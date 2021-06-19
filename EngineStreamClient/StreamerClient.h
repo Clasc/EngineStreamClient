@@ -1,6 +1,7 @@
 #include "UdpReceiver.h"
 #include "Decoder.h"
 #include <time.h>
+#include <functional>
 #include <iostream>
 
 #define PORT 5000
@@ -17,7 +18,7 @@ public:
     StreamerClient();
     ~StreamerClient();
 	void init();
-	void receiveAndEncode(char* buffer, AVFrame* frame);
+	void receiveDecode(char* buffer, std::function<void(AVFrame* frame)> callback);
 };
 
 StreamerClient::StreamerClient()
@@ -43,7 +44,7 @@ void StreamerClient::init() {
 	printf("ffmpeg is set up \n");
 };
 
-void StreamerClient::receiveAndEncode(char* buffer, AVFrame* frame)
+void StreamerClient::receiveDecode(char* buffer, std::function<void(AVFrame* frame)> callback)
 {
 	double ptime = clock() / (double)CLOCKS_PER_SEC;
 	try {
@@ -54,14 +55,7 @@ void StreamerClient::receiveAndEncode(char* buffer, AVFrame* frame)
 			return;
 		}
 
-		auto frame = av_frame_alloc();
-		if (!frame)
-		{
-			fprintf(stderr, "Cannot alloc frame\n");
-			exit(1);
-		}
-
-		m_decoder.decode(buffer, frame);
+		m_decoder.decode(buffer, ret, callback);
 	}
 
 	catch (std::system_error err) {

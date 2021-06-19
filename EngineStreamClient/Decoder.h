@@ -5,7 +5,7 @@ extern "C"
 #include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
 }
-
+#include <functional>
 #include <stdio.h>
 
 #define CODEC AV_CODEC_ID_MPEG2VIDEO
@@ -23,7 +23,7 @@ public:
     Decoder(/* args */);
     ~Decoder();
 	void setupContexts(int width, int height);
-	void decode(char* buffer, AVFrame* frame);
-	int decode_packet(AVPacket* pPacket, AVFrame* pFrame);
+	void decode(char* buffer, int length, std::function<void(AVFrame* frame)> callback);
+	int decode_packet(AVPacket* pPacket, std::function<void(AVFrame* frame)> callback);
 };
 
