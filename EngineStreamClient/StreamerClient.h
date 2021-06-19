@@ -114,7 +114,7 @@ void StreamerClient::start()
 
 		SDL_Event e;
 		if (SDL_PollEvent(&e)) {
-			if (e.type == SDL_QUIT) {
+			if (e.key.keysym.sym == SDLK_ESCAPE) {
 				running = false;
 			}
 		}
