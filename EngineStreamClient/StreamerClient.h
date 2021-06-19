@@ -15,7 +15,8 @@ private:
 public:
     StreamerClient();
     ~StreamerClient();
-    void receiveAndEncode();
+	void init();
+	void receiveAndEncode(char* buffer);
 };
 
 StreamerClient::StreamerClient()
@@ -26,24 +27,20 @@ StreamerClient::StreamerClient()
 
 StreamerClient::~StreamerClient()
 {
+	m_receiver.closeSock();
 }
 
-void StreamerClient::receiveAndEncode()
-{
-	char message[1000];
-    double ptime;
-
+void StreamerClient::init() {
 	m_receiver.init(PORT);
 	m_decoder.setupContexts(WIDTH, HEIGHT);
 	printf("ffmpeg is set up \n");
-	
-	while (true) {
-		m_receiver.receive(message, &ptime);
-		printf("received a message! \n");
-		m_decoder.decode(message);
-		auto pos = 0;
-	}
+};
 
-    m_receiver.closeSock();
+void StreamerClient::receiveAndEncode(char* buffer)
+{
+    double ptime;
+	m_receiver.receive(buffer, &ptime);
+	printf("received a message! \n");
+	m_decoder.decode(buffer);   
     return;
 }
