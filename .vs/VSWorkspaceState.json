@@ -1,7 +1,13 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\external",
+    "\\external\\ffmpeg",
+    "\\external\\ffmpeg\\include",
+    "\\external\\ffmpeg\\include\\libavcodec",
+    "\\external\\SDL2",
+    "\\external\\SDL2\\include"
   ],
-  "SelectedNode": "\\Decoder",
+  "SelectedNode": "\\.gitignore",
   "PreviewInSolutionExplorer": false
 }
