@@ -5,4 +5,4 @@ cmake_install.cmake
 Makefile
 progress.marks
 EngineStreamClient
-x64/
+**/x64/
