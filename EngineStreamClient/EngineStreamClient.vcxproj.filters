@@ -18,10 +18,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UdpReceiver.cpp">
+    <ClCompile Include="Decoder.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Decoder.cpp">
+    <ClCompile Include="Udp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -29,10 +29,10 @@
     <ClInclude Include="StreamerClient.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UdpReceiver.h">
+    <ClInclude Include="Decoder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Decoder.h">
+    <ClInclude Include="Udp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

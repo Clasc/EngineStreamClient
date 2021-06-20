@@ -161,12 +161,12 @@
   <ItemGroup>
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="UdpReceiver.cpp" />
+    <ClCompile Include="Udp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Decoder.h" />
     <ClInclude Include="StreamerClient.h" />
-    <ClInclude Include="UdpReceiver.h" />
+    <ClInclude Include="Udp.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

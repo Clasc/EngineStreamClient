@@ -1,4 +1,4 @@
-#include "UdpReceiver.h"
+#include "Udp.h"
 #include "Decoder.h"
 #include <time.h>
 #include <functional>
@@ -6,13 +6,14 @@
 #include <iostream>
 
 #define PORT 5000
+#define ADDRESS "127.0.0.1"
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
 class StreamerClient
 {
 private:
-    UdpReceiver m_receiver;
+    Udp m_udp;
 	Decoder m_decoder;
     const int WIDTH = 800;
     const int HEIGHT = 600;
@@ -26,11 +27,11 @@ public:
 
 StreamerClient::StreamerClient()
 {
-    m_receiver = UdpReceiver();
+    m_udp = Udp();
 	m_decoder = Decoder();
 
 	try {
-		m_receiver.init(PORT);
+		m_udp.init(ADDRESS,  PORT);
 	}
 	catch (std::system_error err) {
 		printf(err.what());
@@ -42,14 +43,14 @@ StreamerClient::StreamerClient()
 
 StreamerClient::~StreamerClient()
 {
-	m_receiver.closeSock();
+	m_udp.closeSock();
 }
 
 void StreamerClient::receiveDecode(char* buffer, std::function<void(AVFrame* frame)> callback)
 {
 	double ptime = clock() / (double)CLOCKS_PER_SEC;
 	try {
-		auto ret = m_receiver.receive(buffer,&ptime);
+		auto ret = m_udp.receive(buffer,&ptime);
 		printf("received a message! \n");
 		if (ret < 0) 
 		{
@@ -114,6 +115,11 @@ void StreamerClient::start()
 
 		SDL_Event e;
 		if (SDL_PollEvent(&e)) {
+			if (e.key.keysym.sym != NULL) {
+				int data[1] = { e.key.keysym.sym };
+				m_udp.send((char*) data, sizeof(data));
+			}
+
 			if (e.key.keysym.sym == SDLK_ESCAPE) {
 				running = false;
 			}
